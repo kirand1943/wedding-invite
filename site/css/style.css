@@ -446,7 +446,7 @@ body.moving .walk-img {
 
 .bougain {
     position: absolute;
-    top: -1.5cqh;
+    top: -2.7cqw;
     right: -2cqw;
     width: 56cqw;
     transform-origin: 100% 0;
@@ -463,7 +463,7 @@ body.moving .walk-img {
 
 .bell-btn {
     right: 31cqw;
-    top: 8cqh;
+    top: 14.5cqw;
     width: 7.2cqw;
     background: none;
     border: 0;
@@ -476,7 +476,7 @@ body.moving .walk-img {
 
 .lantern-wrap {
     right: 12cqw;
-    top: 11cqh;
+    top: 19.5cqw;
     width: 12.5cqw;
     animation: pend 6.4s ease-in-out -2s infinite alternate;
 }
@@ -490,14 +490,27 @@ body.moving .walk-img {
 
 .chain {
     display: block;
+    position: relative;
     width: 1px;
-    height: 5cqh;
+    height: 9cqw;
     margin: 0 auto;
     background: linear-gradient(#c7a45a, #a8873f);
 }
 
 .lantern-wrap .chain {
-    height: 12cqh;
+    height: 21cqw;
+}
+
+/* The thread carries on upward behind the foliage, so the bell / lantern always hang from the tree whatever the
+   screen height is (phones change height when the address bar hides). */
+.chain::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    width: 1px;
+    height: 34cqw;
+    background: #b3914a;
 }
 
 .bell-btn.ring {
