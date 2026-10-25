@@ -65,27 +65,6 @@ $("#archArt").innerHTML = Art.arch();
 $("#mapArt").innerHTML = Art.mapIllustration();
 $("#mandapArt").innerHTML = Art.mandap();
 
-// Haldi umbrellas: PLANTED on the plate's sand/rug. x = centre (% of width), base = ground line (% of height).
-const umbrellas = [
-    { x: 66, base: 99.6, w: 15, main: "#f6df6a", alt: "#fffbe0" },   // in front of the plate's bowls
-    { x: 30, base: 99.5, w: 10, main: "#f2a7c3", alt: "#fff4f0" },   // behind-left, on the sand wedge
-];
-umbrellas.forEach((u, i) => {
-    const d = document.createElement("div");
-    d.className = "u-wrap";
-    d.style.cssText = `left:calc(${u.x}% - ${u.w / 2}cqw);bottom:${(100 - u.base).toFixed(1)}cqh;width:${u.w}cqw`;
-    d.innerHTML = Art.umbrella(u.main, u.alt, "h" + i) + `<div class="contact-shadow"></div>`;
-    $("#umbrellas").appendChild(d);
-});
-// marigold garland strings hung between the umbrella tops and the plate's big umbrella (svg units: x %, y % × 1.778)
-const top = (u) => [u.x, (u.base - u.w * 0.89) * 1.778];
-const A = top(umbrellas[0]), B = top(umbrellas[1]);
-const MG = ["#f5a623", "#fbbf3d", "#e58f12", "#fff3b0"];
-$("#garlands").innerHTML = `<svg viewBox="0 0 100 177.8" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <g class="g">${Art.flowerString(B, [(A[0] + B[0]) / 2, B[1] + 14], A, 30, MG, 1.3, 3)}</g>
-  <g class="g" style="animation-delay:-2s">${Art.flowerString(A, [(A[0] + 74) / 2, A[1] - 2], [74, 137.8], 24, MG, 1.3, 5)}</g>
-</svg>`;
-
 // petals for scene 3 / 4
 const petalsEl = $("#petals");
 for (let i = 0; i < 26; i++) {
@@ -281,10 +260,7 @@ function build() {
 
     /* ============ SCENE 6 · HALDI (56 → 74) ============ */
     show("#s6", 56, 2.2);
-    tl.fromTo(".u-wrap", { y: H * 0.05, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 1.6, stagger: 0.5, ease: "power2.out" }, 56.4);
-    tl.fromTo(".garlands svg", { autoAlpha: 0 }, { autoAlpha: 1, duration: 2 }, 57.4);
     tl.fromTo(".hc-front", { y: H * 0.05, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 2.4, ease: "power2.out" }, 57.4);
-    tl.fromTo(".mari-h", { x: -W * 0.1 }, { x: 0, duration: 2.6, ease: "power2.out" }, 57);
     tl.fromTo("#t6", { y: 14 }, { y: 0, autoAlpha: 1, duration: 2 }, 59.2);
     tl.fromTo("#d6", { y: 10 }, { y: 0, autoAlpha: 1, duration: 2 }, 61.4);
     // standing together → the groom sweeps her up

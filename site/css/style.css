@@ -663,24 +663,6 @@ body.moving .walk-img {
 }
 
 /* ---------- scene 6 (haldi) — everything is planted on the plate's sand / rug ---------- */
-.garlands {
-    position: absolute;
-    inset: 0;
-}
-
-.garlands svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.garlands g.g {
-    animation: soft 5s ease-in-out infinite alternate;
-    transform-box: fill-box;
-    transform-origin: 50% 0;
-}
-
 .umbrellas {
     position: absolute;
     inset: 0;
@@ -724,13 +706,6 @@ body.moving .walk-img {
 .h-couple .contact-shadow {
     bottom: -1.2cqw;
     z-index: 0;
-}
-
-.mari-h {
-    left: 12cqw;
-    width: 15cqw;
-    bottom: -1.2cqh;
-    animation: none;
 }
 
 .haldi-petals {
@@ -1508,7 +1483,6 @@ body.moving .walk-img {
     .lantern-wrap,
     .twinkle,
     .beam,
-    .garlands g.g,
     .ring,
     .opener-text,
     .btn-gold,

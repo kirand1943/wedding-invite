@@ -65,6 +65,67 @@
                     <circle r="1.8" fill="#f3d98a" />
                 </g>
             </symbol>
+            <!-- pressed-watercolour wild flowers (reference: elements/flowers.jpeg) used on the wedding mandap -->
+            <radialGradient id="gWm" cx=".5" cy=".5" r=".6">
+                <stop offset="0" stop-color="#f7dcea" />
+                <stop offset=".6" stop-color="#d9a0c4" />
+                <stop offset="1" stop-color="#b9759f" />
+            </radialGradient>
+            <radialGradient id="gWp" cx=".5" cy=".5" r=".6">
+                <stop offset="0" stop-color="#fff6ea" />
+                <stop offset=".65" stop-color="#fbd7c4" />
+                <stop offset="1" stop-color="#eca3a0" />
+            </radialGradient>
+            <radialGradient id="gWl" cx=".5" cy=".5" r=".6">
+                <stop offset="0" stop-color="#d9d2f7" />
+                <stop offset=".65" stop-color="#a396e3" />
+                <stop offset="1" stop-color="#7766c4" />
+            </radialGradient>
+            <path id="wpCos" d="M0 0C-3.4 -3 -4.6 -7.6 -2.6 -9.6L-.9 -8.6L0 -9.4L.9 -8.6L2.6 -9.6C4.6 -7.6 3.4 -3 0 0Z" />
+            <path id="wpLav" d="M0 0C-4.2 -2.6 -4.8 -7.4 -2.2 -9.2C-.8 -10 .8 -10 2.2 -9.2C4.8 -7.4 4.2 -2.6 0 0Z" />
+            <symbol id="fl-wm" viewBox="-10 -10 20 20">
+                <g fill="url(#gWm)" stroke="#a5638e" stroke-width=".3" stroke-opacity=".7">
+                    <use href="#wpCos" /><use href="#wpCos" transform="rotate(45)" /><use href="#wpCos" transform="rotate(90)" />
+                    <use href="#wpCos" transform="rotate(135)" /><use href="#wpCos" transform="rotate(180)" /><use href="#wpCos" transform="rotate(225)" />
+                    <use href="#wpCos" transform="rotate(270)" /><use href="#wpCos" transform="rotate(315)" />
+                </g>
+                <g stroke="#a5638e" stroke-opacity=".45" stroke-width=".25" fill="none">
+                    <path d="M0 -1.5V-7.5M0 1.5V7.5M-1.5 0H-7.5M1.5 0H7.5" />
+                </g>
+                <circle r="2" fill="#c9a24f" /><circle r="1.1" fill="#8a5a2b" />
+            </symbol>
+            <symbol id="fl-wp" viewBox="-10 -10 20 20">
+                <g fill="url(#gWp)" stroke="#d58a86" stroke-width=".3" stroke-opacity=".7">
+                    <use href="#wpCos" /><use href="#wpCos" transform="rotate(51.4)" /><use href="#wpCos" transform="rotate(102.8)" />
+                    <use href="#wpCos" transform="rotate(154.2)" /><use href="#wpCos" transform="rotate(205.6)" />
+                    <use href="#wpCos" transform="rotate(257)" /><use href="#wpCos" transform="rotate(308.4)" />
+                </g>
+                <circle r="1.9" fill="#f2c24f" /><circle r="1" fill="#d8902f" />
+            </symbol>
+            <symbol id="fl-wl" viewBox="-10 -10 20 20">
+                <g fill="url(#gWl)" stroke="#6a5bb8" stroke-width=".3" stroke-opacity=".7">
+                    <use href="#wpLav" /><use href="#wpLav" transform="rotate(72)" /><use href="#wpLav" transform="rotate(144)" />
+                    <use href="#wpLav" transform="rotate(216)" /><use href="#wpLav" transform="rotate(288)" />
+                </g>
+                <circle r="1.7" fill="#f5d36a" /><circle r=".8" fill="#c98a2c" />
+            </symbol>
+            <symbol id="fl-wq" viewBox="-10 -10 20 20">
+                <g fill="#f6efc9" stroke="#cdbf86" stroke-width=".2">
+                    <circle cx="0" cy="-6" r="1.3" /><circle cx="4.2" cy="-4.2" r="1.3" /><circle cx="6" cy="0" r="1.3" />
+                    <circle cx="4.2" cy="4.2" r="1.3" /><circle cx="0" cy="6" r="1.3" /><circle cx="-4.2" cy="4.2" r="1.3" />
+                    <circle cx="-6" cy="0" r="1.3" /><circle cx="-4.2" cy="-4.2" r="1.3" />
+                    <circle cx="0" cy="-3" r="1.2" /><circle cx="3" cy="0" r="1.2" /><circle cx="0" cy="3" r="1.2" /><circle cx="-3" cy="0" r="1.2" />
+                    <circle r="1.3" fill="#e4dba2" />
+                </g>
+            </symbol>
+            <symbol id="fl-wd" viewBox="-10 -10 20 20">
+                <g fill="#fffaf0" stroke="#d9cfa0" stroke-width=".3">
+                    <ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" /><ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" transform="rotate(60)" />
+                    <ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" transform="rotate(120)" /><ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" transform="rotate(180)" />
+                    <ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" transform="rotate(240)" /><ellipse cx="0" cy="-5.6" rx="1.9" ry="4.2" transform="rotate(300)" />
+                </g>
+                <circle r="2" fill="#f3d04f" /><circle r="1" fill="#d99a2a" />
+            </symbol>
         </defs>
     </svg>
     <main class="frame" id="frame">
@@ -178,14 +239,11 @@
 
         <!-- ================= SCENE 6: Haldi (everything stands on the plate's sand / rug) ================= -->
         <div class="layer" id="s6">
-            <div class="garlands" id="garlands"></div>
-            <div class="umbrellas" id="umbrellas"></div>
             <div class="h-couple" id="hCouple">
                 <div class="contact-shadow"></div>
                 <img class="hc hc-front" data-src="assets/couple/haldi-front.webp" alt="" />
                 <img class="hc hc-carry" data-src="assets/couple/haldi-carry.webp" alt="" />
             </div>
-            <img class="mari mari-h" data-src="assets/marigold.webp" alt="" />
             <div class="haldi-petals" id="haldiPetals"></div>
         </div>
 
