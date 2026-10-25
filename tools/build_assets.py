@@ -101,6 +101,23 @@ def build_plate_a():
     o = np.array(out).astype(np.float32) + noise * soft
     out = Image.fromarray(np.clip(o, 0, 255).astype("uint8"))
 
+    # lower-left (where the brass stands + vases were): the diffusion repaint above leaves a smeary blur that peeks out
+    # around the foreground stand. Rebuild that corner from real texture instead: mirror-tile the garden strip + sand
+    # that sits just to the right of it (the water starts further right, so only the first 120 px are used).
+    Xr, Yr, PERIOD, HALF = 440, 1290, 240, 120
+    arr = np.array(out)
+    u = Xr - np.arange(Xr)
+    t = u % PERIOD
+    src_x = Xr + np.where(t <= HALF, t, PERIOD - t)
+    full = arr.copy()
+    full[Yr:, :Xr] = arr[Yr:][:, src_x]
+    pad = 60
+    mk = np.zeros((H + 2 * pad, W + 2 * pad), np.float32)
+    mk[pad + Yr:, :pad + Xr] = 1
+    mk = np.array(Image.fromarray((mk * 255).astype("uint8")).filter(ImageFilter.GaussianBlur(8))).astype(np.float32) / 255
+    mk = mk[pad:pad + H, pad:pad + W, None]
+    out = Image.fromarray((arr * (1 - mk) + full * mk).astype("uint8"))
+
     # ---- bell + lantern (gold) extracted from the ORIGINAL
     def extract(box, name, seed, mirror_left=False):
         c = img.crop(box)
