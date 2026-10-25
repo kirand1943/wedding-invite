@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f1e9dc" />
+    <title>Kiran weds Rutuja — 14 December 2026</title>
+    <meta name="description" content="You are invited to the wedding of Kiran and Rutuja, 14 December 2026." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400&display=swap"
+        rel="stylesheet" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preload" as="image" href="assets/envelope.webp" />
+    <link rel="preload" as="image" href="assets/plate-a.webp" />
+    <link rel="preload" as="image" href="assets/couple/wedding-walk.webp" />
+</head>
+
+<body class="locked">
+    <!-- shared flower sprites used by every garland / mandap / arch -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <radialGradient id="gM" cx=".4" cy=".35" r=".85">
+                <stop offset="0" stop-color="#ffe08a" />
+                <stop offset=".55" stop-color="#f5a623" />
+                <stop offset="1" stop-color="#d4700d" />
+            </radialGradient>
+            <radialGradient id="gR" cx=".4" cy=".35" r=".85">
+                <stop offset="0" stop-color="#ffd3e3" />
+                <stop offset=".55" stop-color="#ee86ae" />
+                <stop offset="1" stop-color="#c8517f" />
+            </radialGradient>
+            <symbol id="fl-m" viewBox="-10 -10 20 20">
+                <g fill="url(#gM)" stroke="#c76a0b" stroke-width=".35">
+                    <circle cx="0" cy="-6.3" r="3.3" />
+                    <circle cx="4.5" cy="-4.5" r="3.3" />
+                    <circle cx="6.3" cy="0" r="3.3" />
+                    <circle cx="4.5" cy="4.5" r="3.3" />
+                    <circle cx="0" cy="6.3" r="3.3" />
+                    <circle cx="-4.5" cy="4.5" r="3.3" />
+                    <circle cx="-6.3" cy="0" r="3.3" />
+                    <circle cx="-4.5" cy="-4.5" r="3.3" />
+                    <circle r="4.6" />
+                    <circle r="2.4" fill="#fbbf3d" />
+                </g>
+            </symbol>
+            <symbol id="fl-r" viewBox="-10 -10 20 20">
+                <g fill="url(#gR)" stroke="#b8446f" stroke-width=".35">
+                    <circle r="8.6" />
+                    <circle r="6" fill="#f4a0c0" />
+                    <circle r="3.4" fill="#e0679a" />
+                    <path d="M-2 -1 Q0 -4 2 -1" fill="none" />
+                </g>
+            </symbol>
+            <symbol id="fl-j" viewBox="-10 -10 20 20">
+                <g fill="#fffdf6" stroke="#dccfa9" stroke-width=".35">
+                    <ellipse cx="0" cy="-5.5" rx="2.8" ry="4.4" />
+                    <ellipse cx="5.2" cy="-1.7" rx="2.8" ry="4.4" transform="rotate(72 5.2 -1.7)" />
+                    <ellipse cx="3.2" cy="4.5" rx="2.8" ry="4.4" transform="rotate(144 3.2 4.5)" />
+                    <ellipse cx="-3.2" cy="4.5" rx="2.8" ry="4.4" transform="rotate(216 -3.2 4.5)" />
+                    <ellipse cx="-5.2" cy="-1.7" rx="2.8" ry="4.4" transform="rotate(288 -5.2 -1.7)" />
+                    <circle r="1.8" fill="#f3d98a" />
+                </g>
+            </symbol>
+        </defs>
+    </svg>
+    <main class="frame" id="frame">
+
+        <!-- ================= SCENE 6 backdrop (Haldi plate, under plate A until it fades) ================= -->
+        <div class="layer" id="bgB">
+            <img class="plate" data-src="assets/plate-b.webp" alt="" />
+        </div>
+
+        <!-- ================= WORLD (plate A) : scenes 1 → 5 ================= -->
+        <div class="layer cam" id="cam">
+            <div class="world" id="world">
+                <img class="plate plate-a" src="assets/plate-a.webp" alt="" fetchpriority="high" />
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+
+                <!-- sea: foam lines roll right → left toward the shore -->
+                <svg class="waves" viewBox="0 0 1153 2050" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                        <clipPath id="water">
+                            <polygon
+                                points="572,1792 872,1796 876,1850 884,1920 886,2010 850,2050 840,2050 810,2020 740,1945 660,1860" />
+                        </clipPath>
+                        <filter id="soft" x="-5%" y="-50%" width="110%" height="200%">
+                            <feGaussianBlur stdDeviation="2.2" />
+                        </filter>
+                    </defs>
+                    <g clip-path="url(#water)" filter="url(#soft)">
+                        <g transform="translate(470 1710) rotate(46)">
+                            <g class="wave" style="--d:0s">
+                                <path
+                                    d="M0 0 q25 -12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0" />
+                            </g>
+                            <g class="wave" style="--d:-2.4s">
+                                <path
+                                    d="M0 0 q25 12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0" />
+                            </g>
+                            <g class="wave" style="--d:-4.8s">
+                                <path
+                                    d="M0 0 q25 -12 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0" />
+                            </g>
+                        </g>
+                    </g>
+                    <g transform="translate(470 1710) rotate(46)">
+                        <g class="swash">
+                            <path
+                                d="M60 0 q25 -6 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0" />
+                        </g>
+                    </g>
+                </svg>
+
+                <div class="haze" id="haze"></div>
+                <div class="fps" id="fps"></div>
+                <div class="wash" id="wash"></div>
+
+                <!-- Scene 2: floral arch + the couple seated on the bench -->
+                <div class="bench-set" id="benchSet">
+                    <div class="arch-art" id="archArt"></div>
+                    <img class="seated" data-src="assets/couple/wedding-bench.webp" alt="" />
+                    <div class="contact-shadow"></div>
+                </div>
+
+                <!-- the couple walking away (real artwork) -->
+                <div class="walkers" id="walkers">
+                    <div class="walk-img"><img class="wk-base" src="assets/couple/wedding-walk.webp" alt="" /><img
+                            class="wk-hem" src="assets/couple/wedding-walk.webp" alt="" /><img class="wk-l"
+                            src="assets/couple/wedding-walk.webp" alt="" /><img class="wk-r"
+                            src="assets/couple/wedding-walk.webp" alt="" /></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= FOREGROUND dressing (IMG1, IMG4, IMG6 + bell/lantern) ================= -->
+        <div class="layer" id="fg">
+            <div class="intro-l" id="introL">
+                <div class="stand-wrap" id="standWrap">
+                    <div class="cloth"></div>
+                    <img class="stand sway-soft" src="assets/brass-stand.webp" alt="" />
+                </div>
+            </div>
+            <div class="intro-r" id="introR">
+                <div class="banana-wrap" id="banana"><img class="banana sway-leaf" src="assets/banana.webp" alt="" />
+                </div>
+            </div>
+            <div class="hang" id="hang">
+                <img class="bougain sway-soft" src="assets/bougain.webp" alt="" />
+                <button class="bell-btn" id="bell" type="button" aria-label="Ring the bell">
+                    <span class="chain"></span><img src="assets/bell.webp" alt="" />
+                </button>
+                <div class="lantern-wrap" id="lantern"><span class="chain"></span><img src="assets/lantern.webp"
+                        alt="" /></div>
+            </div>
+        </div>
+
+        <!-- ================= SCENE 3: Varmala ================= -->
+        <div class="layer" id="s3">
+            <div class="carpet"></div>
+            <div class="mandap-art" id="mandapArt"></div>
+            <!-- the garland exchange: standing pose, flash, then the garlanded pose -->
+            <div class="gx" id="gx">
+                <img class="gx-pre" id="gxPre" data-src="assets/couple/wedding-front.webp" alt="" />
+                <img class="gx-l" id="gxDone" data-src="assets/couple/gx-final.webp" alt="" />
+            </div>
+            <img class="mari mari-l" data-src="assets/marigold.webp" alt="" />
+            <img class="mari mari-r" data-src="assets/marigold.webp" alt="" />
+            <div class="flash" id="flash"></div>
+        </div>
+
+        <!-- ================= SCENE 4: veil ================= -->
+        <div class="layer veil" id="veil"></div>
+
+        <!-- ================= SCENE 6: Haldi (everything stands on the plate's sand / rug) ================= -->
+        <div class="layer" id="s6">
+            <div class="garlands" id="garlands"></div>
+            <div class="umbrellas" id="umbrellas"></div>
+            <div class="h-couple" id="hCouple">
+                <div class="contact-shadow"></div>
+                <img class="hc hc-front" data-src="assets/couple/haldi-front.webp" alt="" />
+                <img class="hc hc-carry" data-src="assets/couple/haldi-carry.webp" alt="" />
+            </div>
+            <img class="mari mari-h" data-src="assets/marigold.webp" alt="" />
+            <div class="haldi-petals" id="haldiPetals"></div>
+        </div>
+
+        <!-- ================= SCENE 7: Sangeet ================= -->
+                <div class="layer" id="s7">
+            <div class="beam beam-1"></div>
+            <div class="beam beam-2"></div>
+            <div class="beam beam-3"></div>
+            <img class="stage-img" data-src="assets/plate-sangeet.webp" alt="" />
+            <div class="s7-shade"></div>
+            <div class="bokeh" id="bokeh"></div>
+            <div class="spot" id="spot"></div>
+            <div class="sparkles" id="sparkles"></div>
+            <div class="cocktail" id="cocktail">
+                <div class="floor-glow"></div>
+                <div class="floor-ring"></div>
+                <div class="contact-shadow"></div>
+                <img class="dance dance-run" data-src="assets/couple/sangeet-run.webp" alt="" />
+                <img class="dance dance-twirl" data-src="assets/couple/sangeet-twirl.webp" alt="" />
+                <img class="dance dance-dip" data-src="assets/couple/sangeet-dip.webp" alt="" />
+            </div>
+            <div class="bloom" id="bloom"></div>
+            <div class="cam-flash" id="camFlash"></div>
+        </div>
+
+        <!-- ================= SCENE 9: Reception ================= -->
+        <div class="layer" id="s9">
+            <img class="plate" data-src="assets/plate-reception.webp" alt="" />
+            <div class="rc-glow"></div>
+            <div class="rc-sparkles" id="rcSparkles"></div>
+            <div class="rc-bursts" id="rcBursts"></div>
+            <div class="rc-flash" id="rcFlash"></div>
+            <div class="rc-wrap" id="rcWrap">
+                <div class="contact-shadow"></div>
+                <img class="rc-couple" data-src="assets/couple/reception.webp" alt="" />
+            </div>
+        </div>
+
+        <!-- petals (fall in scene 3, drift up into scene 4) -->
+        <div class="layer petals" id="petals"></div>
+
+
+        <!-- ================= TEXT / UI ================= -->
+        <div class="layer ui" id="ui">
+
+            <div class="txt t2" id="t2">
+                <p class="eyebrow invite-line">together with our families<br />we invite you to our wedding</p>
+                <h1 class="names">Kiran<em>weds</em>Rutuja</h1>
+                <p class="date"><span></span>14 December 2026<span></span></p>
+                <div class="scroll-hint" id="scrollHint"><span>Scroll down</span><svg viewBox="0 0 24 24">
+                        <path d="M12 4v15M5 13l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.4"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg></div>
+            </div>
+
+            <div class="txt t3" id="t3">
+                <p class="eyebrow">Muhurtham</p>
+                <h2 class="h2">Wedding on <em>14 December 2026</em></h2>
+                <p class="sub">Muhurtham: <b data-muhurtham>7:05 AM to 7:30 AM</b></p>
+            </div>
+
+            <div class="s4" id="s4">
+                <div class="map-card">
+                    <div class="map-art" id="mapArt"></div>
+                    <div class="map-body">
+                        <p class="eyebrow">The venue</p>
+                        <h3 class="venue" data-venue>Kshana by the Sea</h3>
+                        <a class="btn btn-line" data-map="wedding" href="#" target="_blank" rel="noopener">Open in
+                            Google Maps</a>
+                    </div>
+                </div>
+                <div class="count" id="count" aria-live="off">
+                    <p class="eyebrow">counting down to the muhurtham</p>
+                    <div class="count-row">
+                        <div><b id="cd-d">00</b><span>Days</span></div><i>:</i>
+                        <div><b id="cd-h">00</b><span>Hours</span></div><i>:</i>
+                        <div><b id="cd-m">00</b><span>Minutes</span></div><i>:</i>
+                        <div><b id="cd-s">00</b><span>Seconds</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="txt t6" id="t6">
+                <p class="eyebrow">13 December 2026</p>
+                <h2 class="h1">Haldi</h2>
+                <p class="sub">10:00 AM &nbsp;·&nbsp; <span data-event-place>Adyar Hills</span></p>
+                <a class="btn btn-line sm" data-map="haldi" href="#" target="_blank" rel="noopener">Map</a>
+            </div>
+            <div class="dress d6" id="d6">
+                <p>Dress Code: <b>All Yellow</b></p>
+                <div class="sw"><i style="background:#fff3b0"></i><i style="background:#ffe066"></i><i
+                        style="background:#f7c531"></i><i style="background:#f5a623"></i><i
+                        style="background:#e58f12"></i></div>
+            </div>
+
+            <div class="txt t7" id="t7">
+                <p class="eyebrow">13 December 2026</p>
+                <h2 class="h1">Sangeet</h2>
+                <p class="sub">Musical night &nbsp;·&nbsp; 5:30 PM onwards &nbsp;·&nbsp; <span data-event-place>Adyar
+                        Hills</span></p>
+                <a class="btn btn-line sm" data-map="sangeet" href="#" target="_blank" rel="noopener">Map</a>
+            </div>
+            <div class="dress d7" id="d7">
+                <p>Dress Code: <b>Dark shades only</b></p>
+                <div class="sw"><i style="background:#0d0d0f"></i><i style="background:#14213d"></i><i
+                        style="background:#6b1220"></i><i style="background:#3b2418"></i><i
+                        style="background:#1d3a2a"></i></div>
+            </div>
+
+            <div class="txt t9" id="t9">
+                <p class="eyebrow" data-reception-date>19 December 2026</p>
+                <h2 class="h1">Reception</h2>
+                <p class="venue-line" data-reception-venue>SRK Grandeur Convention Centre</p>
+                <p class="sub" data-reception-time>7:00 PM onwards</p>
+                <a class="btn btn-line sm" data-map="reception" href="#" target="_blank" rel="noopener">Map</a>
+            </div>
+
+            <div class="dress d9" id="d9">
+                <p>Dress Code:<br /><b>Western, Indo-Western or Party wear</b></p>
+            </div>
+
+            <div class="txt t8" id="t8">
+                <h2 class="h2">Your presence would make our <em>celebrations complete</em></h2>
+                <p class="sub">Join us in celebrating our Haldi, Sangeet, Wedding and Reception.</p>
+                <button class="btn btn-gold" type="button" data-rsvp>RSVP</button>
+            </div>
+            <img class="s8c" id="s8c" data-src="assets/couple/wedding-front.webp" alt="" />
+        </div>
+
+        <!-- ================= SCENE 0 / 8: embossed envelope ================= -->
+        <div class="layer env" id="env">
+            <div class="door door-l"></div>
+            <div class="door door-r"></div>
+            <button class="opener" id="opener" type="button" aria-label="Tap to open the invitation">
+                <span class="ring"></span>
+                <span class="opener-text">Tap to open</span>
+            </button>
+        </div>
+
+        <button class="mute" id="mute" type="button" aria-pressed="false" aria-label="Turn ambient sound on">
+            <svg viewBox="0 0 24 24" class="ic-off">
+                <path d="M4 9v6h4l5 4V5L8 9H4z M16 9l5 6 M21 9l-5 6" fill="none" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <svg viewBox="0 0 24 24" class="ic-on">
+                <path d="M4 9v6h4l5 4V5L8 9H4z M16 8.5a5 5 0 010 7 M18.5 6a8.5 8.5 0 010 12" fill="none"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </main>
+
+    <!-- RSVP dialog (posts to the Google Sheet via the Apps Script web app in apps-script/rsvp.gs) -->
+    <dialog class="rsvp" id="rsvp">
+        <form id="rsvpForm" method="dialog" autocomplete="off" novalidate>
+            <button class="x" type="button" data-close aria-label="Close">×</button>
+            <h3>Will you join us?</h3>
+            <p class="hint" id="rsvpHint">Replied before? Use the same name and we will simply update your reply.</p>
+            <label>Your full name<input name="name" required maxlength="80" autocomplete="name" /></label>
+            <fieldset class="yn">
+                <legend>You are a guest of</legend>
+                <label class="chk"><input type="radio" name="side" value="groom" /> Kiran's side</label>
+                <label class="chk"><input type="radio" name="side" value="bride" /> Rutuja's side</label>
+            </fieldset>
+            <fieldset class="yn">
+                <legend>Can you make it?</legend>
+                <label class="chk"><input type="radio" name="attending" value="yes" checked /> Joyfully accept</label>
+                <label class="chk"><input type="radio" name="attending" value="no" /> Regretfully decline</label>
+            </fieldset>
+            <div id="rsvpDetails">
+                <label>Number of guests (including you)<select name="guests">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                    </select></label>
+                <fieldset>
+                    <legend>I will be at</legend>
+                    <label class="chk"><input type="checkbox" name="events" value="haldi" /> Haldi · 13 Dec</label>
+                    <label class="chk"><input type="checkbox" name="events" value="sangeet" /> Sangeet · 13 Dec</label>
+                    <label class="chk"><input type="checkbox" name="events" value="wedding" /> Wedding · 14 Dec</label>
+                    <label class="chk"><input type="checkbox" name="events" value="reception" /> Reception · <span
+                            data-reception-short>19 Dec</span></label>
+                </fieldset>
+            </div>
+            <label>A note for the couple <textarea name="message" rows="2" maxlength="300"></textarea></label>
+            <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <button class="btn btn-gold" type="submit">Send RSVP</button>
+            <a class="wa" data-whatsapp href="#" target="_blank" rel="noopener">or reply on WhatsApp</a>
+            <p class="status" id="rsvpStatus" role="status"></p>
+        </form>
+    </dialog>
+
+    <div id="scroll-space" aria-hidden="true"></div>
+
+    <script src="vendor/gsap.min.js"></script>
+    <script src="vendor/ScrollTrigger.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

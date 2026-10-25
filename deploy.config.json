@@ -1,0 +1,11 @@
+{
+  "platform": "vercel",
+  "_platform_options": [
+    "vercel",
+    "netlify",
+    "github-pages"
+  ],
+  "outputDir": "site",
+  "assetsCacheSeconds": 86400,
+  "vendorCacheSeconds": 31536000
+}
