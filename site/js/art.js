@@ -9,7 +9,8 @@ const rnd = (seed) => { // tiny deterministic PRNG so layout is stable between l
     return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
 };
 
-const SYM = { "#f5a623": "fl-m", "#fbbf3d": "fl-m", "#e58f12": "fl-m", "#f7b733": "fl-m", "#f08ab4": "fl-r", "#f7b6cf": "fl-r", "#e0679a": "fl-r", "#ffffff": "fl-j", "#fffaf0": "fl-j" };
+const SYM = { "#f5a623": "fl-m", "#fbbf3d": "fl-m", "#e58f12": "fl-m", "#f7b733": "fl-m", "#f08ab4": "fl-r", "#f7b6cf": "fl-r", "#e0679a": "fl-r", "#ffffff": "fl-j", "#fffaf0": "fl-j",
+    "@mauve": "fl-wm", "@peach": "fl-wp", "@lav": "fl-wl", "@lace": "fl-wq", "@daisy": "fl-wd" };
 
 /** Flowers strung along a quadratic curve (painted flower sprites defined in index.html). */
 export function flowerString(p0, p1, p2, n, colors, r = 3.2, seed = 7) {
@@ -35,6 +36,9 @@ export function flowerString(p0, p1, p2, n, colors, r = 3.2, seed = 7) {
 export const MARIGOLD = ["#f5a623", "#fbbf3d", "#e58f12", "#f7b733"];
 const PINKS = ["#f08ab4", "#f7b6cf", "#e0679a", "#ffffff"];
 const MIX = [...MARIGOLD, ...PINKS, "#fffaf0"];
+// wedding mandap: marigolds plus soft pressed cosmos in just two colours (mauve + peach) to sit with the warm backdrop
+const WILD = ["@mauve", "@peach"];
+const WED = [...MARIGOLD, ...WILD];
 
 /** Floral arch with fairy lights (scene 2). The wooden bench + couple is real artwork on top. */
 export function arch() {
@@ -48,20 +52,20 @@ export function arch() {
 
 export function mandap() {
     const pil = (x) => `<rect x="${x}" y="70" width="14" height="260" fill="#f0e2c4" stroke="#c9a24f" stroke-width="1.5"/>
-  ${flowerString([x + 7, 80], [x + 20, 200], [x + 7, 326], 22, MIX, 5.2, x)}${flowerString([x + 7, 80], [x - 6, 200], [x + 7, 326], 22, MARIGOLD, 4.6, x + 1)}`;
+  ${flowerString([x + 7, 80], [x + 20, 200], [x + 7, 326], 22, WED, 5.2, x)}${flowerString([x + 7, 80], [x - 6, 200], [x + 7, 326], 22, MARIGOLD, 4.6, x + 1)}`;
     let strings = "";
     for (let i = 0; i < 9; i++) {
         const x = 70 + i * 20;
-        strings += flowerString([x, 74], [x + 3, 100 + (i % 3) * 14], [x, 126 + (i % 3) * 22], 7, i % 2 ? MARIGOLD : ["#fffaf0", "#f7b6cf"], 3.4, 60 + i);
+        strings += flowerString([x, 74], [x + 3, 100 + (i % 3) * 14], [x, 126 + (i % 3) * 22], 7, i % 2 ? MARIGOLD : ["@peach", "@mauve"], 3.4, 60 + i);
     }
     return `<svg class="mandap" viewBox="0 0 300 360" overflow="visible" aria-hidden="true">
   <ellipse cx="150" cy="338" rx="150" ry="20" fill="#f3e6c9"/><ellipse cx="150" cy="338" rx="150" ry="20" fill="none" stroke="#d7b46a" stroke-width="2"/>
   ${pil(34)}${pil(252)}
   <path d="M20 74 Q150 30 280 74 L280 86 Q150 44 20 86Z" fill="#e9b44c"/><path d="M20 74 Q150 30 280 74" fill="none" stroke="#b08d4f" stroke-width="2"/>
-  <g>${flowerString([20, 80], [150, 38], [280, 80], 34, MIX, 5.4, 5)}</g>
+  <g>${flowerString([20, 80], [150, 38], [280, 80], 34, WED, 5.4, 5)}</g>
   <g>${strings}</g>
   <g class="twinkle" fill="#fff3c2">${flowerString([30, 96], [150, 60], [270, 96], 26, ["#fff3c2"], 1.8, 71)}</g>
-  <g>${flowerString([60, 330], [150, 320], [240, 330], 26, ["#e0679a", "#c0262d", "#f7b6cf"], 4, 81)}</g>
+  <g>${flowerString([60, 330], [150, 320], [240, 330], 26, ["@mauve", "@peach"], 4, 81)}</g>
 </svg>`;
 }
 
