@@ -143,12 +143,12 @@ applyCam();
 
 let W = 0, H = 0, opened = false;
 const measure = () => { W = frame.clientWidth; H = frame.clientHeight; };
-/** Position/scale a pose so its FEET sit at (fx%, fy%) of the frame. */
-const feet = (el, fx, fy, s = 1) => ({
-    x: (fx / 100) * W - el.offsetWidth / 2,
-    y: (fy / 100) * H - el.offsetHeight,
-    scale: s,
-});
+/** Position/scale a pose so its FEET sit at (fx%, fy%) of the frame.
+ *  Percent units (not pixels measured at build time): on phones the frame is 100dvh and changes height when the
+ *  browser address bar hides, and percentages follow it with no re-measuring. The element is anchored by its
+ *  bottom-centre (xPercent/yPercent), so left/top is exactly where the feet are. */
+const feet = (fx, fy, s = 1) => ({ left: `${fx}%`, top: `${fy}%`, scale: s });
+const anchorFeet = { xPercent: -50, yPercent: -100, x: 0, y: 0 };
 /** Foreground pieces start parked beyond their corner; the opening tween brings them home. */
 const parkIntro = () => {
     measure();
@@ -207,15 +207,15 @@ function build() {
     const hide = (t, at, d = 1.2, vars = {}) => tl.to(t, { autoAlpha: 0, duration: d, ...vars }, at);
 
     /* ---- initial positions ---- */
-    gsap.set(w1, { ...feet(w1, 50, WALK.y0, 1), autoAlpha: opened ? 1 : 0, transformOrigin: "50% 100%" });
-    gsap.set(cock, { ...feet(cock, -22, 73, 0.95), autoAlpha: 0, transformOrigin: "50% 100%" });
+    gsap.set(w1, { ...anchorFeet, ...feet(50, WALK.y0, 1), autoAlpha: opened ? 1 : 0, transformOrigin: "50% 100%" });
+    gsap.set(cock, { ...anchorFeet, ...feet(-22, 73, 0.95), autoAlpha: 0, transformOrigin: "50% 100%" });
     gsap.set(["#benchSet", ".seated", ".fp", "#wash", "#haze"], { autoAlpha: 0 });
     gsap.set("#spot", { opacity: 0 });
     gsap.set(".mari", { autoAlpha: 1 });
 
     /* ============ SCENE 1 · LANDING (0 → 14) ============ */
     tl.fromTo(cam, { z: 1.8 }, { z: 1.2, duration: 14, ease: E, onUpdate: applyCam }, 0);
-    tl.to(w1, { ...feet(w1, 52, 88.6, 0.5), duration: 14, ease: "power1.out" }, 0);   // fx 50→52, fy y0→88.6, scale 1→0.5
+    tl.to(w1, { ...feet(52, 88.6, 0.5), duration: 14, ease: "power1.out" }, 0);   // fx 50→52, fy y0→88.6, scale 1→0.5
     // every print lands exactly where the couple's feet are at that moment of the walk (same easing as the walk)
     fps.forEach((fp, k) => {
         const i = k >> 1, groom = k % 2 === 0, tt = 0.8 + i * 1.45;
@@ -231,7 +231,7 @@ function build() {
     tl.to(cam, { z: 1.75, duration: 9, ease: E, onUpdate: applyCam }, 14);
     tl.to("#haze", { autoAlpha: 0.6, duration: 7 }, 14);
     tl.fromTo("#benchSet", { y: H * 0.03 }, { y: 0, autoAlpha: 1, duration: 3 }, 12.5);
-    tl.to(w1, { ...feet(w1, 52, 88.1, 0.5), duration: 5, ease: E }, 14.6);
+    tl.to(w1, { ...feet(52, 88.1, 0.5), duration: 5, ease: E }, 14.6);
     tl.to(w1, { autoAlpha: 0, duration: 0.8 }, 20).to(".seated", { autoAlpha: 1, duration: 0.8 }, 20);
     tl.fromTo("#t2", { y: 16 }, { y: 0, autoAlpha: 1, duration: 2.4 }, 18);
     tl.to("#scrollHint", { autoAlpha: 0, duration: 1 }, 24.5);
@@ -301,7 +301,7 @@ function build() {
     // the couple glides in, the light blooms, the pose changes inside the bloom, and the camera eases in slowly
     tl.set(cock, { autoAlpha: 1 }, 75.4);
     tl.fromTo(".dance-run", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8 }, 75.4);
-    tl.to(cock, { ...feet(cock, 50, 71.5, 0.95), duration: 5.6, ease: "power3.out" }, 75.4);
+    tl.to(cock, { ...feet(50, 71.5, 0.95), duration: 5.6, ease: "power3.out" }, 75.4);
     tl.to("#spot", { opacity: 0.3, duration: 2.4 }, 78);
     tl.to(".floor-glow", { opacity: 1, duration: 2.4 }, 78);
     // run → twirl
