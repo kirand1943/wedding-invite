@@ -17,6 +17,7 @@ const CONFIG = {
     //   Change it here once and the page text + countdown both follow.
     muhurtham: { label: "7:05 AM to 7:30 AM", iso: "2026-12-14T07:05:00+05:30" },
     venue: "Kshana by the Sea",          // [PLACEHOLDER from brief — confirm]
+    city: "Kapu, Udupi Dist.",
     place: "Adyar Hills",
     maps: {
         wedding: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3bbcb1ae6b47d05f:0xc3dc2e1fccef0f86?sa=X&ved=1t:8290&ictx=111",
@@ -27,6 +28,7 @@ const CONFIG = {
         date: "19 December 2026",
         short: "19 Dec",
         venue: "SRK Grandeur Convention Centre",
+        city: "Mysuru",
         time: "7:00 PM onwards",
         map: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3baf7b3af61666a7:0xbeac56a1a34045b3?sa=X&ved=1t:8290&ictx=111",
     },
@@ -52,6 +54,8 @@ const rand = (a, b) => a + Math.random() * (b - a);
 /* ───────────────────────── 2. DOM population ───────────────────────── */
 $$("[data-muhurtham]").forEach((e) => (e.textContent = CONFIG.muhurtham.label));
 $$("[data-venue]").forEach((e) => (e.textContent = CONFIG.venue));
+$$("[data-venue-city]").forEach((e) => (e.textContent = CONFIG.city));
+$$("[data-reception-city]").forEach((e) => (e.textContent = CONFIG.reception.city));
 $$("[data-event-place]").forEach((e) => (e.textContent = CONFIG.place));
 CONFIG.maps.reception = CONFIG.reception.map;
 $$("[data-reception-date]").forEach((e) => (e.textContent = CONFIG.reception.date));
@@ -140,13 +144,14 @@ const parkIntro = () => {
 $("#opener").addEventListener("click", () => {
     if (opened) return;
     opened = true;
-    ensureAudio();
+    setAmbient(true);                       // the tap is the user gesture browsers need: music starts by default
     lazyLoad();
     const t = gsap.timeline({
         onComplete: () => {
             document.body.classList.remove("locked");
             window.scrollTo(0, 0);
             ScrollTrigger.refresh();
+            armCue();
         },
     });
     t.to(".opener-text", { y: -30, autoAlpha: 0, duration: 0.7, ease: "power2.in" })
@@ -213,7 +218,6 @@ function build() {
     tl.to(w1, { ...feet(52, 88.1, 0.5), duration: 5, ease: E }, 14.6);
     tl.to(w1, { autoAlpha: 0, duration: 0.8 }, 20).to(".seated", { autoAlpha: 1, duration: 0.8 }, 20);
     tl.fromTo("#t2", { y: 16 }, { y: 0, autoAlpha: 1, duration: 2.4 }, 18);
-    tl.to("#scrollHint", { autoAlpha: 0, duration: 1 }, 24.5);
     tl.to("#t2", { autoAlpha: 0, y: -10, duration: 1.4 }, 26.6);
 
     /* ============ SCENE 3 · MUHURTHAM / VARMALA (28 → 44) ============ */
@@ -243,7 +247,7 @@ function build() {
     });
 
     /* ============ SCENE 4 · LOCATION · COUNTDOWN · RSVP (44 → 56) ============ */
-    hide("#s3", 44, 2.5);
+    hide("#s3", 55.2, 1.4);          // stays on screen, softened by the veil, as the backdrop of the venue page
     hide("#hang", 44.5, 2);
     tl.to(cam, { z: 1.05, duration: 8, ease: E, onUpdate: applyCam }, 45);
     show("#veil", 44.2, 2.6);
@@ -345,26 +349,135 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-/* ---- audio: synthesised sea ambience (no files) + bell chime ---- */
-let actx, ambientGain, ambientOn = false;
+/* ---- audio: generated sea waves (no files) with the odd temple bell in between ----------------------------------
+   Each wave is its own event: soft, low-passed pink noise that swells and recedes (the filter opens as the wave rises
+   and closes as it drains) with a low rumble underneath, panned a little differently
+   every time. A faint continuous wash fills the gaps, and a soft bell rings now and then through a hall reverb. */
+let actx, ambientGain, ambientOn = false, bus, waveBus, musicStarted = false, pinkBuf;
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const between = (a, b) => a + Math.random() * (b - a);
+
 function ensureAudio() {
     if (actx) return actx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
     actx = new AC();
-    // brown noise through a slow-moving low-pass = surf
-    const len = actx.sampleRate * 4, buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < len; i++) { const w = Math.random() * 2 - 1; last = (last + 0.02 * w) / 1.02; d[i] = last * 3.2; }
-    const src = actx.createBufferSource(); src.buffer = buf; src.loop = true;
-    const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 600;
-    const lfo = actx.createOscillator(); lfo.frequency.value = 0.11;
-    const lfoGain = actx.createGain(); lfoGain.gain.value = 380;
-    lfo.connect(lfoGain); lfoGain.connect(lp.frequency);
     ambientGain = actx.createGain(); ambientGain.gain.value = 0;
-    src.connect(lp); lp.connect(ambientGain); ambientGain.connect(actx.destination);
-    src.start(); lfo.start();
+    const comp = actx.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = 0.02; comp.release.value = 0.4;
+    ambientGain.connect(comp); comp.connect(actx.destination);
+    waveBus = actx.createGain(); waveBus.connect(ambientGain);                  // waves: dry and wide
+    bus = actx.createGain();                                                    // bells: dry + hall reverb
+    const dry = actx.createGain(); dry.gain.value = 0.7;
+    const wet = actx.createGain(); wet.gain.value = 0.55;
+    const rev = actx.createConvolver();
+    const len = Math.floor(actx.sampleRate * 3), ir = actx.createBuffer(2, len, actx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5); }
+    rev.buffer = ir;
+    bus.connect(dry); dry.connect(ambientGain);
+    bus.connect(rev); rev.connect(wet); wet.connect(ambientGain);
+    // 14 s of stereo pink noise (Paul Kellet filter), end cross-faded into the start so the loop has no seam
+    const sr = actx.sampleRate, n = Math.floor(sr * 14), fade = Math.floor(sr * 0.8);
+    pinkBuf = actx.createBuffer(2, n, sr);
+    for (let c = 0; c < 2; c++) {
+        const d = pinkBuf.getChannelData(c), tmp = new Float32Array(n + fade);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < n + fade; i++) {
+            const w = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852;
+            b3 = 0.8665 * b3 + w * 0.3104856; b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898;
+            tmp[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+        }
+        for (let i = 0; i < n; i++) d[i] = tmp[i];
+        for (let i = 0; i < fade; i++) { const k = i / fade; d[i] = tmp[i] * k + tmp[n + i] * (1 - k); }
+    }
     return actx;
+}
+const noise = (t0, dur, offset) => {
+    const s = actx.createBufferSource(); s.buffer = pinkBuf; s.loop = true;
+    s.start(t0, offset == null ? Math.random() * 10 : offset); s.stop(t0 + dur);
+    return s;
+};
+
+/** A smooth swell shape: eases in, peaks at `at` (0..1 of the duration), then eases out slowly (no sudden jumps). */
+function swell(n, at, peak, tail = 1.3) {
+    const c = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+        const u = i / (n - 1);
+        c[i] = peak * (u < at ? Math.pow(Math.sin((Math.PI / 2) * (u / at)), 2) : Math.pow(Math.cos((Math.PI / 2) * ((u - at) / (1 - at))), 2 * tail));
+    }
+    c[0] = 0.0001; c[n - 1] = 0.0001;
+    return c;
+}
+
+/** A single wave: a soft "shhh" that eases in over ~5 s, peaks gently, then drains back over ~8 s as the water slides
+    off the sand. No roar (everything below ~150 Hz is filtered out), no thump, no abrupt jump, no hiss. */
+function wave(t0) {
+    const ctx = actx, total = between(12, 14.5), pan = between(-0.55, 0.55), size = between(0.8, 1);
+    const out = ctx.createGain(); out.gain.value = 1;
+    const p = ctx.createStereoPanner(); p.pan.setValueAtTime(pan * 0.5, t0); p.pan.linearRampToValueAtTime(pan, t0 + total * 0.4); p.pan.linearRampToValueAtTime(pan * 0.6, t0 + total);
+    out.connect(p); p.connect(waveBus);
+    const band = (lo, hi) => {
+        const h = ctx.createBiquadFilter(); h.type = "highpass"; h.frequency.value = lo; h.Q.value = 0.5;
+        const l = ctx.createBiquadFilter(); l.type = "lowpass"; l.frequency.value = hi; l.Q.value = 0.5;
+        const l2 = ctx.createBiquadFilter(); l2.type = "lowpass"; l2.frequency.value = hi * 1.3; l2.Q.value = 0.5;
+        h.connect(l); l.connect(l2); return [h, l, l2];
+    };
+    // the water itself: a gentle swell whose brightness follows its loudness
+    const [h1, l1, l1b] = band(170, 900);
+    const g1 = ctx.createGain(); g1.gain.setValueAtTime(0.0001, t0); g1.gain.setValueCurveAtTime(swell(256, 0.4, 0.62 * size), t0, total);
+    l1.frequency.setValueAtTime(420, t0); l1.frequency.setValueCurveAtTime(swell(256, 0.4, 1).map((v) => 420 + 520 * v), t0, total);
+    noise(t0, total + 0.3).connect(h1); l1b.connect(g1); g1.connect(out);
+    // the wash back down the sand: a second, softer layer that peaks a little later and lingers
+    const [h2, l2, l2b] = band(190, 640);
+    const g2 = ctx.createGain(); g2.gain.setValueAtTime(0.0001, t0); g2.gain.setValueCurveAtTime(swell(256, 0.55, 0.42 * size, 1.1), t0, total);
+    noise(t0, total + 0.3).connect(h2); l2b.connect(g2); g2.connect(out);
+}
+let waveTimer;
+function scheduleWave() {
+    if (ambientOn) wave(actx.currentTime + 0.1);
+    waveTimer = setTimeout(scheduleWave, between(8000, 10500));     // a new wave every ~9 s: each one's drain overlaps the next one's swell
+}
+
+/** Temple bell (ghanta): a hard brass strike with a bright "tang", then a long, shimmering ring. The partials are
+    inharmonic (so it reads as metal, not as a musical note) and each is doubled and slightly detuned, which makes the
+    ring beat and shimmer the way cast brass does. One strike, left to ring out. */
+const TEMPLE = [[0.5, 0.18, 7], [1, 0.5, 6.5], [2.4, 0.38, 5], [3.8, 0.3, 3.4], [5.1, 0.2, 2.2], [6.7, 0.13, 1.4], [8.6, 0.08, 0.8]];
+function bellStrike(f, t0, vel) {
+    const ctx = actx;
+    // the strike: a short metallic click
+    const n = ctx.createBufferSource(); n.buffer = pinkBuf; n.start(t0, Math.random() * 9); n.stop(t0 + 0.05);
+    const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 3600; bp.Q.value = 2.4;
+    const ng = ctx.createGain(); ng.gain.setValueAtTime(vel * 0.9, t0); ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+    n.connect(bp); bp.connect(ng); ng.connect(bus);
+    // the ring
+    TEMPLE.forEach(([r, a, d]) => {
+        [-1, 1].forEach((s) => {
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.frequency.value = f * r * (1 + s * 0.0017);                       // two slightly different strings of metal: beating
+            g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(a * vel * 0.5, t0 + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+            o.connect(g); g.connect(bus); o.start(t0); o.stop(t0 + d + 0.1);
+        });
+    });
+}
+const BELL_PITCH = 760 + Math.random() * 120;                                    // one bell, always the same pitch
+function scheduleBell() {
+    if (ambientOn) {
+        bellStrike(BELL_PITCH, actx.currentTime + 0.2, 0.09);                    // a single, clear strike that rings out
+    }
+    setTimeout(scheduleBell, between(10000, 18000));
+}
+
+function startMusic() {
+    if (musicStarted || !actx) return;
+    musicStarted = true;
+    // a faint continuous wash so the shore never goes silent between waves
+    const lp = actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 520;
+    const g = actx.createGain(); g.gain.value = 0.07;
+    const s = actx.createBufferSource(); s.buffer = pinkBuf; s.loop = true; s.start(0, Math.random() * 10);
+    s.connect(lp); lp.connect(g); g.connect(waveBus);
+    scheduleWave();
+    setTimeout(scheduleBell, 6000);
 }
 function chime() {
     const ctx = ensureAudio(); if (!ctx) return;
@@ -380,14 +493,31 @@ function chime() {
 $("#bell").addEventListener("click", () => {
     const b = $("#bell"); b.classList.remove("ring"); void b.offsetWidth; b.classList.add("ring"); chime();
 });
-$("#mute").addEventListener("click", () => {
+function setAmbient(on) {
     const ctx = ensureAudio(); if (!ctx) return;
-    ambientOn = !ambientOn;
+    ambientOn = on;
     if (ctx.state === "suspended") ctx.resume();
-    ambientGain.gain.linearRampToValueAtTime(ambientOn ? 0.28 : 0, ctx.currentTime + 0.8);
-    $("#mute").setAttribute("aria-pressed", String(ambientOn));
-    $("#mute").setAttribute("aria-label", ambientOn ? "Turn ambient sound off" : "Turn ambient sound on");
-});
+    ambientGain.gain.cancelScheduledValues(ctx.currentTime);
+    ambientGain.gain.setValueAtTime(ambientGain.gain.value, ctx.currentTime);
+    ambientGain.gain.linearRampToValueAtTime(on ? 0.9 : 0, ctx.currentTime + (on ? 2.5 : 0.8));
+    if (on) startMusic();
+    $("#mute").setAttribute("aria-pressed", String(on));
+    $("#mute").setAttribute("aria-label", on ? "Turn music off" : "Turn music on");
+}
+$("#mute").addEventListener("click", () => setAmbient(!ambientOn));
+
+/* ---- scroll cue: when the guest pauses scrolling, a soft "Scroll down" hint with a moving chevron appears ---- */
+const cue = $("#scrollCue");
+let cueTimer, cueShown = false;
+const showCue = (on) => { if (on === cueShown) return; cueShown = on; gsap.to(cue, { autoAlpha: on ? 1 : 0, duration: 0.7 }); };
+function armCue() {
+    clearTimeout(cueTimer);
+    showCue(false);
+    if (!opened || (st && st.progress > 0.97)) return;      // nothing further down on the last page
+    cueTimer = setTimeout(() => { if (!dlg.open) showCue(true); }, 2200);
+}
+addEventListener("scroll", armCue, { passive: true });
+
 
 /* ---- sangeet camera flashes ---- */
 const flashes = { active: false, rc: false };
