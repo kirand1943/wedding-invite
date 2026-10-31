@@ -172,23 +172,33 @@ $("#opener").addEventListener("click", () => {
 
 /* ───────────────────────── 4. Master timeline ───────────────────────── */
 let master, st;
+const warp = (p) => {
+    const u0 = WARP_AT / WARP_SPEED, U = u0 + (T_END - WARP_AT), x = p * U;
+    return x <= u0 ? x * WARP_SPEED : WARP_AT + (x - u0);
+};
+const followScroll = (p) => {                                   // same smoothing as a ScrollTrigger scrub
+    const t = warp(p);
+    if (reduced) { master.time(t); return; }
+    if (scrubTween) scrubTween.kill();
+    scrubTween = gsap.to(master, { time: t, duration: 0.8, ease: "power3", overwrite: true });
+};
+/* Scroll -> timeline time. The opening walk (first WARP_AT seconds) is WARP_SPEED x more sensitive (it takes 1/WARP_SPEED
+   as much scrolling); everything after it keeps its original pace. */
+const WARP_AT = 14, WARP_SPEED = 1.25;
+let scrubTween;
 const T_END = 118;
 const WALK = { y0: 95 };                         // where the couple's feet start on the sand (% of frame height)
 
 function build() {
     measure();
-    if (master) { master.scrollTrigger && master.scrollTrigger.kill(); master.kill(); }
+    if (master) { if (st) st.kill(); if (scrubTween) scrubTween.kill(); master.kill(); }
 
     const w1 = $("#walkers"), cock = $("#cocktail");
     const fps = $$(".fp");
     const E = "power1.inOut";
 
-    master = gsap.timeline({
-        defaults: { ease: "none" },
-        scrollTrigger: { trigger: "#scroll-space", start: "top top", end: "bottom bottom", scrub: reduced ? true : 0.8, invalidateOnRefresh: true },
-    });
+    master = gsap.timeline({ paused: true, defaults: { ease: "none" } });
     const tl = master;
-    st = tl.scrollTrigger;
     const show = (t, at, d = 1.2, vars = {}) => tl.to(t, { autoAlpha: 1, duration: d, ...vars }, at);
     const hide = (t, at, d = 1.2, vars = {}) => tl.to(t, { autoAlpha: 0, duration: d, ...vars }, at);
 
@@ -323,6 +333,7 @@ function build() {
         flashes.active = t > 78 && t < 92.5;
         flashes.rc = t > 95 && t < 102.4;
     });
+    st = ScrollTrigger.create({ trigger: "#scroll-space", start: "top top", end: "bottom bottom", invalidateOnRefresh: true, onUpdate: (self) => followScroll(self.progress) });
 }
 
 /* ───────────────────────── 5. Extras ───────────────────────── */
@@ -363,11 +374,12 @@ function ensureAudio() {
     if (actx) return actx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    actx = new AC();
+    actx = new AC({ latencyHint: "playback" });          // bigger buffers: no crackle on busy phones
     ambientGain = actx.createGain(); ambientGain.gain.value = 0;
-    const comp = actx.createDynamicsCompressor();
-    comp.threshold.value = -18; comp.ratio.value = 3; comp.attack.value = 0.02; comp.release.value = 0.4;
-    ambientGain.connect(comp); comp.connect(actx.destination);
+    const hp = actx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 110;      // nothing a phone speaker can't play cleanly
+    const comp = actx.createDynamicsCompressor();                                                // a real limiter: the output can never clip
+    comp.threshold.value = -12; comp.knee.value = 0; comp.ratio.value = 20; comp.attack.value = 0.003; comp.release.value = 0.25;
+    ambientGain.connect(hp); hp.connect(comp); comp.connect(actx.destination);
     waveBus = actx.createGain(); waveBus.connect(ambientGain);                  // waves: dry and wide
     bus = actx.createGain();                                                    // bells: dry + hall reverb
     const dry = actx.createGain(); dry.gain.value = 0.7;
@@ -437,7 +449,7 @@ function wave(t0) {
 }
 let waveTimer;
 function scheduleWave() {
-    if (ambientOn) wave(actx.currentTime + 0.1);
+    if (ambientOn && actx.state === "running") wave(actx.currentTime + 0.1);
     waveTimer = setTimeout(scheduleWave, between(8000, 10500));     // a new wave every ~9 s: each one's drain overlaps the next one's swell
 }
 
@@ -450,21 +462,21 @@ function bellStrike(f, t0, vel) {
     // the strike: a short metallic click
     const n = ctx.createBufferSource(); n.buffer = pinkBuf; n.start(t0, Math.random() * 9); n.stop(t0 + 0.05);
     const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 3600; bp.Q.value = 2.4;
-    const ng = ctx.createGain(); ng.gain.setValueAtTime(vel * 0.9, t0); ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.045);
+    const ng = ctx.createGain(); ng.gain.setValueAtTime(0.0001, t0); ng.gain.linearRampToValueAtTime(vel * 0.7, t0 + 0.004); ng.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
     n.connect(bp); bp.connect(ng); ng.connect(bus);
     // the ring
     TEMPLE.forEach(([r, a, d]) => {
         [-1, 1].forEach((s) => {
             const o = ctx.createOscillator(), g = ctx.createGain();
             o.frequency.value = f * r * (1 + s * 0.0017);                       // two slightly different strings of metal: beating
-            g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(a * vel * 0.5, t0 + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+            g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(a * vel * 0.5, t0 + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
             o.connect(g); g.connect(bus); o.start(t0); o.stop(t0 + d + 0.1);
         });
     });
 }
 const BELL_PITCH = 760 + Math.random() * 120;                                    // one bell, always the same pitch
 function scheduleBell() {
-    if (ambientOn) {
+    if (ambientOn && actx.state === "running") {
         bellStrike(BELL_PITCH, actx.currentTime + 0.2, 0.09);                    // a single, clear strike that rings out
     }
     setTimeout(scheduleBell, between(10000, 18000));
@@ -501,12 +513,20 @@ function setAmbient(on) {
     if (ctx.state === "suspended") ctx.resume();
     ambientGain.gain.cancelScheduledValues(ctx.currentTime);
     ambientGain.gain.setValueAtTime(ambientGain.gain.value, ctx.currentTime);
-    ambientGain.gain.linearRampToValueAtTime(on ? 0.9 : 0, ctx.currentTime + (on ? 2.5 : 0.8));
+    ambientGain.gain.linearRampToValueAtTime(on ? 0.55 : 0, ctx.currentTime + (on ? 2.5 : 0.8));
     if (on) startMusic();
     $("#mute").setAttribute("aria-pressed", String(on));
     $("#mute").setAttribute("aria-label", on ? "Turn music off" : "Turn music on");
 }
 $("#mute").addEventListener("click", () => setAmbient(!ambientOn));
+
+/* The sound must stop the moment the page is not on screen (tab switched, app in the background, phone locked, browser
+   closed) and come back when the guest returns - unless they muted it. */
+const pauseSound = () => { if (actx && actx.state === "running") actx.suspend(); };
+const resumeSound = () => { if (actx && ambientOn && actx.state === "suspended") actx.resume(); };
+document.addEventListener("visibilitychange", () => (document.hidden ? pauseSound() : resumeSound()));
+addEventListener("pagehide", pauseSound);
+addEventListener("pageshow", resumeSound);
 
 /* ---- scroll cue: when the guest pauses scrolling, a soft "Scroll down" hint with a moving chevron appears ---- */
 const cue = $("#scrollCue");
@@ -516,7 +536,7 @@ function armCue() {
     clearTimeout(cueTimer);
     showCue(false);
     if (!opened || (st && st.progress > 0.97)) return;      // nothing further down on the last page
-    cueTimer = setTimeout(() => { if (!dlg.open) showCue(true); }, 2200);
+    cueTimer = setTimeout(() => { if (!dlg.open) showCue(true); }, 800);
 }
 addEventListener("scroll", armCue, { passive: true });
 
@@ -680,7 +700,7 @@ addEventListener("resize", () => {
         const p = st ? st.progress : 0;
         if (opened) { gsap.set(["#introL", "#introR", "#hang"], { x: 0, y: 0 }); } else { parkIntro(); }
         build();
-        master.progress(p);
+        master.time(warp(p));
         ScrollTrigger.refresh();
     }, 250);
 });
