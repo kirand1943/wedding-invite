@@ -1546,8 +1546,13 @@ body.moving .walk-img {
 
 /* Haldi: dress code lives under the header, never over the couple */
 .dress.d6 {
-    top: 33cqh;
+    /* part of the Haldi header block (flows under the Map button), so it can never overlap it on any screen shape */
+    position: relative;
+    top: auto;
     bottom: auto;
+    left: auto;
+    right: auto;
+    margin-top: 6cqw;
     padding: 0;
     background: none;
     text-shadow: 0 0 1.2cqw rgba(255, 252, 240, .95), 0 0 2.6cqw rgba(255, 252, 240, .85);
@@ -2091,4 +2096,15 @@ body.moving .walk-img .wk-r {
 
 .scroll-cue {
     background: rgba(30, 16, 14, .44);
+}
+
+/* Haldi / Sangeet: place + district as a second line in the same type as the rest of the sub text */
+.t6 .sub.place,
+.t7 .sub.place {
+    margin-top: .4cqw;
+}
+
+/* reception dress code sits above the "Scroll down" cue instead of under it */
+.dress.d9 {
+    padding-bottom: 12cqh;
 }

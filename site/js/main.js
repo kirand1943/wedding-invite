@@ -19,6 +19,7 @@ const CONFIG = {
     venue: "Kshana by the Sea",          // [PLACEHOLDER from brief — confirm]
     city: "Kapu, Udupi Dist.",
     place: "Adyar Hills",
+    district: "Dakshina Kannada Dist.",
     maps: {
         wedding: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3bbcb1ae6b47d05f:0xc3dc2e1fccef0f86?sa=X&ved=1t:8290&ictx=111",
         haldi: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3ba35900c8684f9d:0x5890765ecd7d12dc?sa=X&ved=1t:8290&ictx=111",
@@ -57,6 +58,7 @@ $$("[data-venue]").forEach((e) => (e.textContent = CONFIG.venue));
 $$("[data-venue-city]").forEach((e) => (e.textContent = CONFIG.city));
 $$("[data-reception-city]").forEach((e) => (e.textContent = CONFIG.reception.city));
 $$("[data-event-place]").forEach((e) => (e.textContent = CONFIG.place));
+$$("[data-event-district]").forEach((e) => (e.textContent = CONFIG.district));
 CONFIG.maps.reception = CONFIG.reception.map;
 $$("[data-reception-date]").forEach((e) => (e.textContent = CONFIG.reception.date));
 $$("[data-reception-venue]").forEach((e) => (e.textContent = CONFIG.reception.venue));
