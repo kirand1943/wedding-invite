@@ -657,9 +657,9 @@ body.moving .walk-img {
 
 /* ---------- scene 4 veil ---------- */
 .veil {
-    background: rgba(247, 240, 228, .76);
-    backdrop-filter: blur(9px);
-    -webkit-backdrop-filter: blur(9px);
+    background: rgba(247, 240, 228, .5);
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
 }
 
 /* ---------- scene 6 (haldi) — everything is planted on the plate's sand / rug ---------- */
@@ -1724,7 +1724,7 @@ body.moving .walk-img {
 
 .t9 {
     /* sits above the couple's heads whatever the screen shape: couple top = 100cqh - 29.6cqh - 46.2cqw */
-    top: max(6cqw, min(20cqh, calc(70.4cqh - 100cqw)));
+    top: max(6cqw, min(20cqh, calc(70.4cqh - 108cqw)));
 }
 
 .t9 .h1 {
@@ -1997,4 +1997,98 @@ body.moving .walk-img .wk-r {
 .dress.d9 b {
     color: #ffe3a3;
     font-weight: 600;
+}
+
+/* venue city line (Udupi / Mysuru) */
+.venue-city {
+    margin: -1.8cqw 0 3.5cqw;
+    font: 400 3.4cqw var(--sans);
+    letter-spacing: .32em;
+    text-indent: .32em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.t9 .venue-city {
+    margin: 1.2cqw 0 0;
+    color: #6b4a2a;
+    text-shadow: 0 0 1.2cqw rgba(255, 252, 246, .9);
+}
+
+/* countdown: centred in the lower half of the page */
+.count {
+    position: absolute;
+    left: 8cqw;
+    right: 8cqw;
+    width: auto;
+    top: calc(69cqh - 11cqw);              /* .s4 starts at 6cqh, so this centres the block at ~75% of the page */
+}
+
+/* scroll cue */
+.scroll-cue {
+    position: absolute;
+    left: 50%;
+    bottom: 2.2cqh;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6cqw;
+    padding: 1.6cqw 4cqw 1.2cqw;
+    border-radius: 999px;
+    background: rgba(30, 16, 14, .34);
+    backdrop-filter: blur(3px);
+    color: #fff8ea;
+    font: 300 2.5cqw var(--sans);
+    letter-spacing: .34em;
+    text-indent: .34em;
+    text-transform: uppercase;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.scroll-cue svg {
+    width: 4.6cqw;
+    height: 4.6cqw;
+    animation: cue 1.5s ease-in-out infinite;
+}
+
+@keyframes cue {
+    0% {
+        transform: translateY(-1cqw);
+        opacity: .25;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(1.2cqw);
+        opacity: .25;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-cue svg {
+        animation: none;
+    }
+}
+
+/* countdown over the softened wedding backdrop: deeper gold so it stays readable */
+.count-row b {
+    color: #8a6226;
+    text-shadow: 0 .3cqw 0 rgba(255, 255, 255, .85), 0 0 3cqw rgba(255, 250, 238, .9);
+}
+
+.count .eyebrow,
+.count-row span {
+    color: #4a3626;
+    text-shadow: 0 0 1.6cqw rgba(255, 250, 238, .95);
+}
+
+.scroll-cue {
+    background: rgba(30, 16, 14, .44);
 }
