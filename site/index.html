@@ -306,8 +306,10 @@
         <!-- ================= TEXT / UI ================= -->
         <div class="layer ui" id="ui">
 
-            <!-- shown when the guest pauses scrolling (see "scroll cue" in main.js) -->
-            <div class="scroll-cue" id="scrollCue" aria-hidden="true"><span>Scroll down</span><svg viewBox="0 0 24 24"><path d="M5 8l7 7 7-7M5 14l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+            <!-- page hints: appear when the guest pauses; tap to go to the next / previous page (see "page navigation" in main.js) -->
+            <button class="scroll-cue cue-up" id="cueUp" type="button" aria-label="Go back to the previous page"><svg viewBox="0 0 24 24"><path d="M5 10l7-7 7 7M5 16l7-7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg><span>Back</span></button>
+            <button class="scroll-cue cue-down" id="cueDown" type="button" aria-label="Scroll down to the next page"><span>Scroll down</span><svg viewBox="0 0 24 24"><path d="M5 8l7 7 7-7M5 14l7 7 7-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+            <nav class="pager" id="pager" aria-label="Pages"></nav>
 
             <div class="txt t2" id="t2">
                 <p class="eyebrow invite-line">together with our families<br />we invite you to our wedding</p>

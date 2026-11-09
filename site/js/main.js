@@ -528,15 +528,66 @@ document.addEventListener("visibilitychange", () => (document.hidden ? pauseSoun
 addEventListener("pagehide", pauseSound);
 addEventListener("pageshow", resumeSound);
 
-/* ---- scroll cue: when the guest pauses scrolling, a soft "Scroll down" hint with a moving chevron appears ---- */
-const cue = $("#scrollCue");
-let cueTimer, cueShown = false;
-const showCue = (on) => { if (on === cueShown) return; cueShown = on; gsap.to(cue, { autoAlpha: on ? 1 : 0, duration: 0.7 }); };
+/* ---- page navigation ------------------------------------------------------------------------------------------
+   The story is one continuous scroll, so people don't realise there are "pages" or that they can go back. Three hints:
+   1. when the guest pauses, a "Scroll down" hint (and, after the first page, a "Back" hint) fades in and the page gives a small tug forward;
+      both are buttons that glide to the next / previous page,
+   2. a column of dots on the right edge shows which page they are on and lets them jump to any page,
+   3. the hints disappear the moment they scroll again. */
+const PAGES = [0, 22, 40, 50, 65, 83, 98, 108];                  // timeline seconds at which each page is fully on screen
+const unwarp = (t) => { const u0 = WARP_AT / WARP_SPEED, U = u0 + (T_END - WARP_AT); return (t <= WARP_AT ? t / WARP_SPEED : u0 + (t - WARP_AT)) / U; };
+const goToPage = (i) => {
+    const top = unwarp(PAGES[Math.max(0, Math.min(PAGES.length - 1, i))]) * (document.documentElement.scrollHeight - innerHeight);
+    scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
+};
+const nowT = () => (st ? warp(st.progress) : 0);
+const pageNow = () => { const t = nowT(); let k = 0; PAGES.forEach((s, i) => { if (s <= t + 2) k = i; }); return k; };
+
+const cueUp = $("#cueUp"), cueDown = $("#cueDown"), pager = $("#pager");
+PAGES.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.type = "button"; d.setAttribute("aria-label", "Go to page " + (i + 1));
+    d.addEventListener("click", () => goToPage(i));
+    pager.appendChild(d);
+});
+const dots = [...pager.children];
+const markPager = () => { const k = pageNow(); dots.forEach((d, i) => d.classList.toggle("on", i === k)); };
+cueDown.addEventListener("click", () => goToPage(pageNow() + 1));
+cueUp.addEventListener("click", () => { const k = pageNow(); goToPage(nowT() > PAGES[k] + 2.5 ? k : k - 1); });
+
+let cueTimer, nudgeTimer, cueShown = false, nudging = false;
+const showCue = (on) => {
+    if (on === cueShown) return;
+    cueShown = on;
+    const k = pageNow();
+    gsap.to(cueDown, { autoAlpha: on && k < PAGES.length - 1 ? 1 : 0, duration: 0.7 });
+    gsap.to(cueUp, { autoAlpha: on && k > 0 ? 1 : 0, duration: 0.7 });
+};
+/* The "page bounce": while the guest is idle the page itself gives a small tug forward (the scene moves on a little, then
+   eases back), which says "there is more below". It is a real scroll nudge, so every layer moves exactly as it would
+   if they scrolled. */
+let nudgeTl, nudgeAt = 0;
+function stopNudge() { if (nudgeTl) nudgeTl.kill(); nudgeTl = null; nudging = false; }
+function nudge() {
+    if (reduced || nudging || !opened || dlg.open || pageNow() >= PAGES.length - 1) return;
+    nudging = true;
+    const base = scrollY, o = { y: 0 };
+    const move = () => { nudgeAt = base + o.y; scrollTo(0, nudgeAt); };
+    nudgeTl = gsap.timeline({ onComplete: () => { nudging = false; nudgeTl = null; } })
+        .to(o, { y: 170, duration: 0.7, ease: "power2.out", onUpdate: move })
+        .to(o, { y: 0, duration: 1.1, ease: "power2.inOut", onUpdate: move });
+}
+/* any touch / wheel / key from the guest cancels the tug straight away, so it never fights their finger */
+["touchstart", "wheel", "keydown", "pointerdown"].forEach((ev) => addEventListener(ev, () => { if (nudging) { stopNudge(); armCue(); } }, { passive: true }));
 function armCue() {
-    clearTimeout(cueTimer);
+    if (nudging) { if (Math.abs(scrollY - nudgeAt) < 8) return; stopNudge(); }   // our own nudge is not the guest scrolling
+    clearTimeout(cueTimer); clearTimeout(nudgeTimer);
     showCue(false);
-    if (!opened || (st && st.progress > 0.97)) return;      // nothing further down on the last page
-    cueTimer = setTimeout(() => { if (!dlg.open) showCue(true); }, 800);
+    if (!opened) return;
+    gsap.to(pager, { autoAlpha: 1, duration: 0.6 });
+    markPager();
+    const loop = () => { nudge(); nudgeTimer = setTimeout(loop, 5200); };
+    cueTimer = setTimeout(() => { if (!dlg.open) { showCue(true); nudgeTimer = setTimeout(loop, 600); } }, 800);
 }
 addEventListener("scroll", armCue, { passive: true });
 

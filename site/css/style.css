@@ -2108,3 +2108,93 @@ body.moving .walk-img .wk-r {
 .dress.d9 {
     padding-bottom: 12cqh;
 }
+
+/* ---- page hints: bouncing next / back chevrons + page dots ---- */
+.scroll-cue {
+    border: 0;
+    font-family: var(--sans);
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-cue.cue-up {
+    top: 2.2cqh;
+    bottom: auto;
+    flex-direction: column;
+}
+
+.scroll-cue.cue-up svg {
+    animation-name: cue-up;
+}
+
+@keyframes cue-up {
+    0% {
+        transform: translateY(1cqw);
+        opacity: .25;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-1.2cqw);
+        opacity: .25;
+    }
+}
+
+.pager {
+    position: absolute;
+    right: 2.4cqw;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 2.2cqw;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: auto;
+}
+
+.pager button {
+    width: 1.9cqw;
+    height: 1.9cqw;
+    padding: 0;
+    border-radius: 50%;
+    border: .25cqw solid rgba(255, 255, 255, .9);
+    background: rgba(176, 141, 79, .45);
+    box-shadow: 0 0 1.4cqw rgba(60, 40, 20, .35);
+    cursor: pointer;
+    transition: transform .3s, background .3s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* the touch area is bigger than the dot */
+.pager button::after {
+    content: "";
+    position: absolute;
+    inset: -1.6cqw;
+}
+
+.pager button {
+    position: relative;
+}
+
+.pager button.on {
+    background: #b08d4f;
+    transform: scale(1.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-cue.cue-up svg {
+        animation: none;
+    }
+}
+
+/* the hints themselves stay still: it is the page that moves (see nudge() in main.js) */
+.scroll-cue svg {
+    animation: none !important;
+    opacity: .9;
+}
