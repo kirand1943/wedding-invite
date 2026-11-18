@@ -47,6 +47,12 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const gsap = window.gsap;
 gsap.registerPlugin(window.ScrollTrigger);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* "Lite" mode for iPhone / iPad: Safari on iOS is far slower than Android at blend modes, SVG filters, backdrop blur and
+   CSS drop-shadows, which shows up as dropped frames and flickering artifacts. Lite mode (see .lite in style.css) drops
+   those effects and uses fewer particles. Force it anywhere with ?lite=1, or switch it off on iOS with ?lite=0. */
+const iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const lite = /[?&]lite=1/.test(location.search) || (iOS && !/[?&]lite=0/.test(location.search));
+document.documentElement.classList.toggle("lite", lite);
 history.scrollRestoration = "manual";
 
 const frame = $("#frame");
@@ -73,7 +79,7 @@ $("#mandapArt").innerHTML = Art.mandap();
 
 // petals for scene 3 / 4
 const petalsEl = $("#petals");
-for (let i = 0; i < 26; i++) {
+for (let i = 0; i < (lite ? 12 : 26); i++) {
     const p = document.createElement("i");
     p.className = "petal";
     p.style.left = (Math.random() * 100).toFixed(1) + "%";
@@ -82,14 +88,14 @@ for (let i = 0; i < 26; i++) {
 const petals = $$(".petal");
 
 // soft marigold petals drifting through the Haldi scene
-for (let i = 0; i < 26; i++) {
+for (let i = 0; i < (lite ? 12 : 26); i++) {
     const p = document.createElement("i");
     p.className = "hp";
     p.style.cssText = `left:${rand(0, 100).toFixed(1)}%;--d:${rand(7, 13).toFixed(1)}s;--delay:${(-rand(0, 12)).toFixed(1)}s;--dx:${rand(-14, 14).toFixed(1)}cqw;width:${rand(1.6, 2.6).toFixed(1)}cqw;height:${rand(2.2, 3.4).toFixed(1)}cqw`;
     $("#haldiPetals").appendChild(p);
 }
 // warm light bokeh for the Sangeet stage
-for (let i = 0; i < 16; i++) {
+for (let i = 0; i < (lite ? 8 : 16); i++) {
     const b = document.createElement("i");
     const s = rand(5, 14);
     b.style.cssText = `left:${rand(2, 94).toFixed(1)}%;top:${rand(6, 80).toFixed(1)}%;width:${s.toFixed(1)}cqw;height:${s.toFixed(1)}cqw;--d:${rand(4, 9).toFixed(1)}s;--dx:${rand(-5, 5).toFixed(1)}cqw`;
@@ -97,7 +103,7 @@ for (let i = 0; i < 16; i++) {
 }
 
 // gold sparkles that rise around the dancing couple
-for (let i = 0; i < 18; i++) {
+for (let i = 0; i < (lite ? 8 : 18); i++) {
     const s = document.createElement("i");
     s.className = "spk";
     const size = rand(1.2, 2.8);
@@ -106,7 +112,7 @@ for (let i = 0; i < 18; i++) {
 }
 
 // soft chandelier-light twinkles for the Reception stage
-for (let i = 0; i < 22; i++) {
+for (let i = 0; i < (lite ? 10 : 22); i++) {
     const s = document.createElement("i");
     s.style.cssText = `left:${rand(8, 92).toFixed(1)}%;top:${rand(3, 40).toFixed(1)}%;--d:${rand(2, 5).toFixed(1)}s;--delay:${(-rand(0, 4)).toFixed(1)}s;transform:scale(${rand(0.6, 1.8).toFixed(2)})`;
     $("#rcSparkles").appendChild(s);
@@ -569,10 +575,11 @@ const showCue = (on) => {
 let nudgeTl, nudgeAt = 0;
 function stopNudge() { if (nudgeTl) nudgeTl.kill(); nudgeTl = null; nudging = false; }
 function nudge() {
-    if (reduced || nudging || !opened || dlg.open || pageNow() >= PAGES.length - 1) return;
+    const last = pageNow() >= PAGES.length - 1, atEnd = st && st.progress > 0.985;
+    if (reduced || nudging || !opened || dlg.open || (last && !atEnd)) return;
     nudging = true;
-    const base = scrollY, o = { y: 0 };
-    const move = () => { nudgeAt = base + o.y; scrollTo(0, nudgeAt); };
+    const base = scrollY, o = { y: 0 }, dir = atEnd ? -1 : 1;       // on the very last screen the tug goes backwards: "scroll up"
+    const move = () => { nudgeAt = base + dir * o.y; scrollTo(0, nudgeAt); };
     nudgeTl = gsap.timeline({ onComplete: () => { nudging = false; nudgeTl = null; } })
         .to(o, { y: 170, duration: 0.7, ease: "power2.out", onUpdate: move })
         .to(o, { y: 0, duration: 1.1, ease: "power2.inOut", onUpdate: move });
@@ -754,4 +761,15 @@ addEventListener("resize", () => {
         master.time(warp(p));
         ScrollTrigger.refresh();
     }, 250);
+});
+
+
+/* ---- phones held sideways: the invitation is portrait-only, so a "turn your phone upright" note covers it (CSS) and
+   the guest's place in the story is remembered and restored when they turn it back ---- */
+const sideways = matchMedia("(orientation: landscape) and (max-height: 560px) and (pointer: coarse)");
+let placeP = 0;
+addEventListener("scroll", () => { if (!sideways.matches && st) placeP = st.progress; }, { passive: true });
+sideways.addEventListener("change", () => {
+    if (sideways.matches) { stopNudge(); return; }
+    setTimeout(() => { scrollTo(0, placeP * (document.documentElement.scrollHeight - innerHeight)); armCue(); }, 350);
 });

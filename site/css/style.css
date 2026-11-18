@@ -2035,7 +2035,7 @@ body.moving .walk-img .wk-r {
     left: 50%;
     bottom: 2.2cqh;
     transform: translateX(-50%);
-    z-index: 5;
+    z-index: 45;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2149,7 +2149,7 @@ body.moving .walk-img .wk-r {
     right: 2.4cqw;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 6;
+    z-index: 45;
     display: flex;
     flex-direction: column;
     gap: 2.2cqw;
@@ -2197,4 +2197,94 @@ body.moving .walk-img .wk-r {
 .scroll-cue svg {
     animation: none !important;
     opacity: .9;
+}
+
+/* ---- phone held sideways ---- */
+.rotate-note {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    text-align: center;
+    color: #4a3626;
+    background: linear-gradient(160deg, #f6efe2, #e3d6bf);
+    font-family: var(--serif);
+}
+
+.rotate-note svg {
+    width: 54px;
+    height: 54px;
+    color: #b08d4f;
+    animation: turn-up 2.4s ease-in-out infinite;
+}
+
+.rotate-note p {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    font-style: italic;
+}
+
+.rotate-note small {
+    font: 300 12px var(--sans);
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: #8a6a2c;
+}
+
+@keyframes turn-up {
+
+    0%,
+    25% {
+        transform: rotate(-90deg);
+    }
+
+    65%,
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@media (orientation: landscape) and (max-height: 560px) and (pointer: coarse) {
+    .rotate-note {
+        display: flex;
+    }
+}
+
+/* ---- performance ---- */
+/* scenes that are not on screen must not keep animating */
+[style*="visibility: hidden"],
+[style*="visibility: hidden"] * {
+    animation-play-state: paused !important;
+}
+
+/* iPhone / iPad ("lite" mode, see main.js): no full-screen blending, no SVG filters, no backdrop blur, no drop-shadow filters */
+.lite .frame::after {
+    display: none;
+}
+
+.lite *,
+.lite *::before,
+.lite *::after {
+    mix-blend-mode: normal !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.lite .veil {
+    background: rgba(247, 240, 228, .8);
+}
+
+.lite .scroll-cue {
+    background: rgba(30, 16, 14, .55);
+}
+
+.lite .waves g {
+    filter: none !important;
 }
