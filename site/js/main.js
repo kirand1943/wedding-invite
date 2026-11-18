@@ -178,9 +178,32 @@ $("#opener").addEventListener("click", () => {
 
 /* ───────────────────────── 4. Master timeline ───────────────────────── */
 let master, st;
-const warp = (p) => {
-    const u0 = WARP_AT / WARP_SPEED, U = u0 + (T_END - WARP_AT), x = p * U;
-    return x <= u0 ? x * WARP_SPEED : WARP_AT + (x - u0);
+/* How scroll maps to story time. Two things shape it:
+   - the opening walk (first WARP_AT s) is WARP_SPEED x more sensitive,
+   - around every page (+-DWELL_W s) the story moves DWELL x slower per scroll distance, so there is a wide, forgiving
+     stretch of scrolling where the text of that page stays on screen and clear (a page is hard to overshoot).
+   The mapping is tabulated once (rate -> cumulative scroll units) and inverted with a binary search. */
+const DWELL_W = 2.4, DWELL = 2.2, STEP = 0.05, VH_PER_UNIT = 11;
+let wT = null;
+const warpTable = () => {
+    if (wT) return wT;
+    const N = Math.ceil(T_END / STEP), us = new Float64Array(N + 1);
+    const rate = (t) => {
+        let m = 1;
+        PAGES.forEach((a, i) => { if (i === 0) return; const d = Math.abs(t - a); if (d < DWELL_W) { const s = 1 - d / DWELL_W; m = Math.max(m, 1 + (DWELL - 1) * s * s * (3 - 2 * s)); } });
+        return (t < WARP_AT ? 1 / WARP_SPEED : 1) * m;
+    };
+    for (let i = 1; i <= N; i++) us[i] = us[i - 1] + rate((i - 0.5) * STEP) * STEP;
+    wT = { us, N, total: us[N] };
+    $("#scroll-space").style.height = (wT.total * VH_PER_UNIT).toFixed(0) + "vh";      // keep the same pace per second of story
+    return wT;
+};
+const warp = (p) => {                                              // scroll progress 0..1 -> story seconds
+    const { us, N, total } = warpTable(), x = Math.max(0, Math.min(1, p)) * total;
+    let lo = 0, hi = N;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (us[mid] <= x) lo = mid; else hi = mid; }
+    const span = us[hi] - us[lo] || 1;
+    return Math.min(T_END, (lo + (x - us[lo]) / span) * STEP);
 };
 const followScroll = (p) => {                                   // same smoothing as a ScrollTrigger scrub
     const t = warp(p);
@@ -197,6 +220,7 @@ const WALK = { y0: 95 };                         // where the couple's feet star
 
 function build() {
     measure();
+    warpTable();                                   // also sets the scroll length before ScrollTrigger measures it
     if (master) { if (st) st.kill(); if (scrubTween) scrubTween.kill(); master.kill(); }
 
     const w1 = $("#walkers"), cock = $("#cocktail");
@@ -540,8 +564,11 @@ addEventListener("pageshow", resumeSound);
       both are buttons that glide to the next / previous page,
    2. a column of dots on the right edge shows which page they are on and lets them jump to any page,
    3. the hints disappear the moment they scroll again. */
-const PAGES = [0, 22, 40, 50, 65, 83, 98, 108];                  // timeline seconds at which each page is fully on screen
-const unwarp = (t) => { const u0 = WARP_AT / WARP_SPEED, U = u0 + (T_END - WARP_AT); return (t <= WARP_AT ? t / WARP_SPEED : u0 + (t - WARP_AT)) / U; };
+const PAGES = [0, 23.5, 40, 51, 65, 83, 99, 108];                  // timeline seconds at which each page is fully on screen
+const unwarp = (t) => {                                            // story seconds -> scroll progress 0..1
+    const { us, N, total } = warpTable(), f = Math.max(0, Math.min(N, t / STEP)), i = Math.min(N - 1, Math.floor(f));
+    return (us[i] + (us[i + 1] - us[i]) * (f - i)) / total;
+};
 const goToPage = (i) => {
     const top = unwarp(PAGES[Math.max(0, Math.min(PAGES.length - 1, i))]) * (document.documentElement.scrollHeight - innerHeight);
     scrollTo({ top, behavior: reduced ? "auto" : "smooth" });
@@ -561,6 +588,23 @@ const markPager = () => { const k = pageNow(); dots.forEach((d, i) => d.classLis
 cueDown.addEventListener("click", () => goToPage(pageNow() + 1));
 cueUp.addEventListener("click", () => { const k = pageNow(); goToPage(nowT() > PAGES[k] + 2.5 ? k : k - 1); });
 
+/* Soft snap: when scrolling stops close to a page, glide the last bit so the text is fully clear. (Not on the opening walk;
+   never while a finger is down; never when the guest is far between two pages.) */
+const SNAP_T = 2.2;
+let touching = false, snapTimer;
+function snapNow() {
+    if (touching || nudging || !opened || dlg.open || isSideways() || !st) return;
+    const t = nowT();
+    let best = -1, bd = 1e9;
+    PAGES.forEach((a, i) => { if (i === 0) return; const d = Math.abs(t - a); if (d < bd) { bd = d; best = i; } });
+    if (best < 0 || bd > SNAP_T || bd < 0.12) return;
+    scrollTo({ top: unwarp(PAGES[best]) * (document.documentElement.scrollHeight - innerHeight), behavior: reduced ? "auto" : "smooth" });
+}
+const scheduleSnap = () => { clearTimeout(snapTimer); snapTimer = setTimeout(snapNow, 280); };
+addEventListener("scroll", scheduleSnap, { passive: true });
+addEventListener("touchstart", () => { touching = true; clearTimeout(snapTimer); }, { passive: true });
+["touchend", "touchcancel"].forEach((ev) => addEventListener(ev, () => { touching = false; scheduleSnap(); }, { passive: true }));
+
 let cueTimer, nudgeTimer, cueShown = false, nudging = false;
 const showCue = (on) => {
     if (on === cueShown) return;
@@ -569,14 +613,16 @@ const showCue = (on) => {
     gsap.to(cueDown, { autoAlpha: on && k < PAGES.length - 1 ? 1 : 0, duration: 0.7 });
     gsap.to(cueUp, { autoAlpha: on && k > 0 ? 1 : 0, duration: 0.7 });
 };
-/* The "page bounce": while the guest is idle the page itself gives a small tug forward (the scene moves on a little, then
+/* The "page bounce": while the guest is idle on the first or last screen the page itself gives a small tug (the scene moves on a little, then
    eases back), which says "there is more below". It is a real scroll nudge, so every layer moves exactly as it would
    if they scrolled. */
 let nudgeTl, nudgeAt = 0;
 function stopNudge() { if (nudgeTl) nudgeTl.kill(); nudgeTl = null; nudging = false; }
 function nudge() {
-    const last = pageNow() >= PAGES.length - 1, atEnd = st && st.progress > 0.985;
-    if (reduced || nudging || !opened || dlg.open || (last && !atEnd)) return;
+    // The tug is only for the very first screen (forward) and the very last one (backward). In between, the text hints
+    // are enough, and a page that keeps moving gets in the way of reading.
+    const first = pageNow() === 0, atEnd = st && st.progress > 0.985;
+    if (reduced || nudging || !opened || dlg.open || !(first || atEnd)) return;
     nudging = true;
     const base = scrollY, o = { y: 0 }, dir = atEnd ? -1 : 1;       // on the very last screen the tug goes backwards: "scroll up"
     const move = () => { nudgeAt = base + dir * o.y; scrollTo(0, nudgeAt); };
@@ -747,29 +793,34 @@ form.addEventListener("submit", async (e) => {
 await Promise.all($$("img:not([data-src])").map((i) => i.decode().catch(() => { })));
 parkIntro();
 build();
-window.__kr = { get tl() { return master; } };   // QA handle: __kr.tl.time(36) jumps to that moment
+window.__kr = { get tl() { return master; }, warp, unwarp };   // QA handle: __kr.tl.time(36) jumps to that moment
+/* ---- resize / rotation ----------------------------------------------------------------------------------------
+   Phones held sideways: the invitation is portrait-only, so a "turn your phone upright" note covers it (CSS). While it is
+   sideways the page is left alone (the browser clamps the scroll position to the much shorter sideways page, which must
+   never be mistaken for the guest's place). The guest's place is saved the moment the phone turns, and when it is upright
+   again the page is rebuilt, scrolled back to that place and re-synced with the story in ONE step. */
+const isSideways = () => innerWidth > innerHeight && innerHeight <= 560;
+let placeP = 0, savedP = null;                                         // placeP: last real progress; savedP: frozen while sideways
+addEventListener("scroll", () => { if (savedP === null && !nudging && !isSideways() && st) placeP = st.progress; }, { passive: true });
+
 let rz, lastW = frame.clientWidth;
-addEventListener("resize", () => {
+const onResize = () => {
     clearTimeout(rz);
     rz = setTimeout(() => {
+        if (isSideways()) { if (savedP === null) savedP = placeP; stopNudge(); return; }
         // phone URL-bar show/hide only changes the height: ignore it so the story never jumps
-        if (Math.abs(frame.clientWidth - lastW) < 2) return;
+        if (savedP === null && Math.abs(frame.clientWidth - lastW) < 2) return;
         lastW = frame.clientWidth;
-        const p = st ? st.progress : 0;
+        const p = savedP !== null ? savedP : (st ? st.progress : 0);
         if (opened) { gsap.set(["#introL", "#introR", "#hang"], { x: 0, y: 0 }); } else { parkIntro(); }
         build();
-        master.time(warp(p));
+        if (savedP !== null) scrollTo(0, p * (document.documentElement.scrollHeight - innerHeight));
+        savedP = null;
         ScrollTrigger.refresh();
+        const sync = () => { const q = st ? st.progress : p; master.time(warp(q)); placeP = q; markPager(); };
+        sync(); setTimeout(sync, 300);                                 // a second pass in case the browser is still settling
+        armCue();
     }, 250);
-});
-
-
-/* ---- phones held sideways: the invitation is portrait-only, so a "turn your phone upright" note covers it (CSS) and
-   the guest's place in the story is remembered and restored when they turn it back ---- */
-const sideways = matchMedia("(orientation: landscape) and (max-height: 560px) and (pointer: coarse)");
-let placeP = 0;
-addEventListener("scroll", () => { if (!sideways.matches && st) placeP = st.progress; }, { passive: true });
-sideways.addEventListener("change", () => {
-    if (sideways.matches) { stopNudge(); return; }
-    setTimeout(() => { scrollTo(0, placeP * (document.documentElement.scrollHeight - innerHeight)); armCue(); }, 350);
-});
+};
+addEventListener("resize", onResize);
+addEventListener("orientationchange", onResize);
