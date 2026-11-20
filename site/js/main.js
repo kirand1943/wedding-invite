@@ -38,7 +38,7 @@ const CONFIG = {
         // Paste the "Web app URL" here. Leave empty and the form falls back to WhatsApp.
         endpoint: "https://script.google.com/macros/s/AKfycbysEvRoZRX0go6EhOFUOAXWEWCJLAOSE7U5uz0eAAVotZCKURTkjV9NIKiH-1wgNVff9Q/exec",
         whatsapp: "918867347911",           // [PLACEHOLDER] country code + number, digits only
-        deadline: "Please reply by 15 November", // e.g. "Please reply by 15 November"
+        deadline: "",                       // optional line shown in the RSVP form, e.g. "Please reply by 15 November"
     },
 };
 
